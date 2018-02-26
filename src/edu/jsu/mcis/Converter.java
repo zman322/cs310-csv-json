@@ -54,7 +54,33 @@ public class Converter {
             
             JSONObject jsonObject = new JSONObject();
             
-            // INSERT YOUR CODE HERE
+            JSONArray colHeaders = new JSONArray();
+            JSONArray rowHeaders = new JSONArray();
+            JSONArray bigData = new JSONArray();
+            JSONArray lilData = new JSONArray();
+            String[] lines;
+            
+            lines = full.get(0);
+            
+            for (String str : lines){ 
+                colHeaders.add(str);
+            }
+            for(int i=1; i<full.size(); i++){
+                lines = full.get(i);
+                rowHeaders.add(lines[0]);
+                lilData = new JSONArray();
+                
+                for(int j=1; j<lines.length; j++){
+                    lilData.add(Integer.parseInt(lines[j])); 
+                }
+            }
+            jsonObject.put("colHeaders", colHeaders);
+            jsonObject.put("rowHeaders", rowHeaders);
+            jsonObject.put("data", bigData);
+            
+            results = JSONValue.toJSONString(jsonObject);
+
+
             
         }
         
@@ -76,9 +102,32 @@ public class Converter {
             StringWriter writer = new StringWriter();
             CSVWriter csvWriter = new CSVWriter(writer, ',', '"', '\n');
             
-            // INSERT YOUR CODE HERE
+            JSONArray colHeaders = (JSONArray) jsonObject.get("colHeaders");
+            JSONArray rowHeaders = (JSONArray) jsonObject.get("rowHeaders");
+            JSONArray data = (JSONArray) jsonObject.get("data");
             
+            for(int i = 0; i < colHeaders.size(); i++){
+                if(i == colHeaders.size()-1)
+                    writer.append("\"" + colHeaders.get(i) + "\"");
+                else
+                    writer.append("\"" + colHeaders.get(i) + "\",");
+            }
+            writer.append("\n");
+            
+            for(int i = 0; i < rowHeaders.size(); i++){
+                writer.append("\"" + rowHeaders.get(i) + "\",");
+                JSONArray subData = (JSONArray) data.get(i);
+                for(int j = 0; j < subData.size(); j++){
+                    if(j == subData.size()-1)
+                        writer.append("\"" + subData.get(j) + "\"");
+                    else
+                        writer.append("\"" + subData.get(j) + "\",");
+                }
+                writer.append("\n");
+            }
+            results += writer.toString();
         }
+        
         
         catch(ParseException e) { return e.toString(); }
         
